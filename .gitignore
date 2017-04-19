@@ -1,1 +1,2 @@
 *.{aux,lof,log,lot,out,toc}
+.DS_Store
