@@ -1,0 +1,26 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+omapi\PYGZhy{}port \PYG{l+m}{7911}\PYG{p}{;}
+max\PYGZhy{}lease\PYGZhy{}time \PYG{l+m}{86400}\PYG{p}{;}
+
+option domain\PYGZhy{}name\PYGZhy{}servers \PYG{l+m}{8}.8.8.8\PYG{p}{;}
+
+allow booting\PYG{p}{;}
+allow bootp\PYG{p}{;}
+
+option fqdn.no\PYGZhy{}client\PYGZhy{}update    on\PYG{p}{;}  \PYG{c+c1}{\PYGZsh{} set the \PYGZdq{}O\PYGZdq{} and \PYGZdq{}S\PYGZdq{} flag bits}
+option fqdn.rcode2            \PYG{l+m}{255}\PYG{p}{;}
+option pxegrub code \PYG{n+nv}{150} \PYG{o}{=} text \PYG{p}{;}
+
+\PYG{c+c1}{\PYGZsh{} PXE Handoff.}
+next\PYGZhy{}server \PYG{n+nv}{\PYGZdl{}SERVER\PYGZus{}IP}\PYG{p}{;}
+filename \PYG{l+s+s2}{\PYGZdq{}pxelinux.0\PYGZdq{}}\PYG{p}{;}
+
+log\PYGZhy{}facility local7\PYG{p}{;}
+
+include \PYG{l+s+s2}{\PYGZdq{}/etc/dhcp/dhcpd.hosts\PYGZdq{}}\PYG{p}{;}
+
+subnet \PYG{l+m}{192}.168.2.0 netmask \PYG{l+m}{255}.255.255.0 \PYG{o}{\PYGZob{}}
+range \PYG{l+m}{192}.168.2.10 \PYG{l+m}{192}.168.2.255\PYG{p}{;}
+  option subnet\PYGZhy{}mask \PYG{l+m}{255}.255.255.0\PYG{p}{;}
+  option routers \PYG{n+nv}{\PYGZdl{}SERVER\PYGZus{}IP}\PYG{p}{;}
+\end{Verbatim}

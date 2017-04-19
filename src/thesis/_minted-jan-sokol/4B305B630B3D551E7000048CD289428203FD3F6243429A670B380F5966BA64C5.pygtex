@@ -1,0 +1,24 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+Hostname FIXME\PYGZhy{}HOSTNAME
+FQDNLookup \PYG{n+nb}{false}
+Interval \PYG{l+m}{30}
+ReadThreads \PYG{l+m}{1}
+LoadPlugin syslog
+\PYGZlt{}Plugin syslog\PYGZgt{}
+        LogLevel info
+\PYGZlt{}/Plugin\PYGZgt{}
+LoadPlugin rrdtool
+LoadPlugin network
+
+\PYG{c+c1}{\PYGZsh{}\PYGZsh{} Server config}
+\PYGZlt{}Plugin network\PYGZgt{}
+  Listen \PYG{l+s+s2}{\PYGZdq{}0.0.0.0\PYGZdq{}} \PYG{l+s+s2}{\PYGZdq{}25826\PYGZdq{}}
+  ReportStats \PYG{n+nb}{true}
+	SecurityLevel \PYG{l+s+s2}{\PYGZdq{}Sign\PYGZdq{}}
+  AuthFile \PYG{l+s+s2}{\PYGZdq{}/etc/collectd/auth\PYGZus{}file\PYGZdq{}}
+\PYGZlt{}/Plugin\PYGZgt{}
+
+\PYGZlt{}Plugin rrdtool\PYGZgt{}
+        DataDir \PYG{l+s+s2}{\PYGZdq{}/var/lib/collectd/rrd\PYGZdq{}}
+\PYGZlt{}/Plugin\PYGZgt{}
+\end{Verbatim}

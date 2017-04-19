@@ -1,0 +1,22 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} /etc/network/interfaces}
+\PYG{c+c1}{\PYGZsh{} interfaces(5) file used by ifup(8) and ifdown(8)}
+auto lo
+iface lo inet loopback
+
+auto br0
+iface br0 inet dhcp
+bridge\PYGZus{}ports enp5s0
+up /usr/sbin/brctl stp br0 off
+
+auto enp5s0.222
+iface enp5s0.222 inet static
+        vlan\PYGZhy{}raw\PYGZhy{}device enp5s0
+
+auto br1
+iface br1 inet static
+        address \PYG{l+m}{192}.168.4.4
+        netmask \PYG{l+m}{255}.255.255.0
+        bridge\PYGZus{}ports enp5s0.222
+        up /usr/sbin/brctl stp br1 on
+\end{Verbatim}

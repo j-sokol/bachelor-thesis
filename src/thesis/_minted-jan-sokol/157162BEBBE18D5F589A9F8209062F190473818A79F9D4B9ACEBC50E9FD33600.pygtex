@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZsh{} systemctl restart foreman.service
+\end{Verbatim}

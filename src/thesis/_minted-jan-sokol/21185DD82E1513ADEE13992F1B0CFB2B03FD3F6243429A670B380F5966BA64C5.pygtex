@@ -1,0 +1,30 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+	LoadPlugin contextswitch
+	LoadPlugin cpu
+	LoadPlugin df
+	LoadPlugin disk
+	LoadPlugin entropy
+	LoadPlugin interface
+	LoadPlugin load
+	LoadPlugin memory
+	LoadPlugin processes
+	LoadPlugin uptime
+	LoadPlugin users
+	LoadPlugin vmem
+	LoadPlugin tcpconns
+
+	\PYGZlt{}Plugin df\PYGZgt{}
+	  FSType \PYG{l+s+s2}{\PYGZdq{}rootfs\PYGZdq{}}
+	  IgnoreSelected \PYG{n+nb}{true}
+	  ReportInodes \PYG{n+nb}{true}
+	\PYGZlt{}/Plugin\PYGZgt{}
+	LoadPlugin network
+	  \PYGZlt{}Plugin network\PYGZgt{}
+	  ReportStats \PYG{n+nb}{true}
+	    \PYGZlt{}Server \PYG{l+s+s2}{\PYGZdq{}ctd\PYGZhy{}server\PYGZhy{}ip\PYGZdq{}} \PYGZgt{}
+	      SecurityLevel \PYG{l+s+s2}{\PYGZdq{}Encrypt\PYGZdq{}}
+	      Username \PYG{l+s+s2}{\PYGZdq{}username\PYGZdq{}}
+	      Password password
+	    \PYGZlt{}/Server\PYGZgt{}
+	\PYGZlt{}/Plugin\PYGZgt{}
+\end{Verbatim}

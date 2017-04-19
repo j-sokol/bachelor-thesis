@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+[Unit]
+Description=Rsync Server
+After=local\PYGZhy{}fs.target
+ConditionPathExists=/etc/rsyncd.conf
+
+[Service]
+\PYGZsh{} Note: this requires /etc/rsyncd.conf
+ExecStart=/usr/bin/rsync \PYGZhy{}\PYGZhy{}daemon
+StandardInput=socket
+\end{Verbatim}

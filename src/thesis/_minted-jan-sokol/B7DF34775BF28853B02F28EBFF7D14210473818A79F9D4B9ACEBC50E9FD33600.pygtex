@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} ansible \PYGZhy{}m ping \PYGZhy{}u deployer servers\PYGZus{}list
+\end{Verbatim}

@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+raid \PYGZlt{}mntpoint\PYGZgt{} \PYGZhy{}\PYGZhy{}level\PYG{o}{=}\PYGZlt{}level\PYGZgt{} \PYGZhy{}\PYGZhy{}device\PYG{o}{=}\PYGZlt{}mddevice\PYGZgt{} \PYGZlt{}partitions*\PYGZgt{}
+\end{Verbatim}

@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+preseed/url=http://server/preseed.cfg
+\end{Verbatim}

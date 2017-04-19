@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+lock file = /var/run/rsync.lock
+log file = /var/log/rsyncd.log
+pid file = /var/run/rsyncd.pid
+
+[foreman]
+    path = /home/foreman
+    uid = rsync
+    gid = rsync
+    read only = no
+    list = yes
+    auth users = rsyncclient
+    secrets file = /etc/rsyncd.secrets
+    hosts allow = 192.168.1.0/255.255.255.0
+\end{Verbatim}

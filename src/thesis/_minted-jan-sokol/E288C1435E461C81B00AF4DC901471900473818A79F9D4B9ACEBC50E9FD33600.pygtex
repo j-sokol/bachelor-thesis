@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZhy{}\PYGZhy{}\PYGZhy{}
+\PYGZhy{} name : Install and configure foreman
+    hosts : servers\PYGZus{}list
+    remote\PYGZus{}user : user
+    sudo : yes
+
+  tasks :
+  \PYGZhy{} name : ( os = Debian ) Install Foreman
+    apt: name=foreman state=present update\PYGZus{}cache=yes
+    sudo: yes
+\end{Verbatim}

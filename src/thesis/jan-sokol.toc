@@ -1,0 +1,83 @@
+\select@language {czech}
+\select@language {czech}
+\contentsline {subsection}{Odkaz na tuto pr{\' a}ci}{viii}{Doc-Start}
+\contentsline {chapter}{{\' U}vod}{1}{chapter*.2}
+\contentsline {section}{C\IeC {\'\i }l pr\IeC {\'a}ce}{2}{section*.3}
+\contentsline {chapter}{\chapternumberline {1}Teorie zaveden\IeC {\'\i } opera\IeC {\v c}n\IeC {\'\i }ho syst\IeC {\'e}mu}{3}{chapter.1}
+\contentsline {section}{\numberline {1.1}Bare metal server}{3}{section.1.1}
+\contentsline {section}{\numberline {1.2}Provisioning}{3}{section.1.2}
+\contentsline {section}{\numberline {1.3}PXE protokol}{4}{section.1.3}
+\contentsline {section}{\numberline {1.4}pxelinux}{6}{section.1.4}
+\contentsline {chapter}{\chapternumberline {2}Anal\IeC {\'y}za provisioning framework\IeC {\r u}}{7}{chapter.2}
+\contentsline {section}{\numberline {2.1}Metodika porovn\IeC {\'a}n\IeC {\'\i }}{7}{section.2.1}
+\contentsline {subsection}{\numberline {2.1.1}Licence}{8}{subsection.2.1.1}
+\contentsline {subsection}{\numberline {2.1.2}St\IeC {\'a}\IeC {\v r}\IeC {\'\i } projektu}{8}{subsection.2.1.2}
+\contentsline {subsection}{\numberline {2.1.3}Slo\IeC {\v z}itost instalace}{9}{subsection.2.1.3}
+\contentsline {subsection}{\numberline {2.1.4}Stabilita}{9}{subsection.2.1.4}
+\contentsline {subsection}{\numberline {2.1.5}HW po\IeC {\v z}adavky}{9}{subsection.2.1.5}
+\contentsline {subsection}{\numberline {2.1.6}Podpora opera\IeC {\v c}n\IeC {\'\i }ch syst\IeC {\'e}m\IeC {\r u}}{9}{subsection.2.1.6}
+\contentsline {section}{\numberline {2.2}Testovac\IeC {\'\i } laborato\IeC {\v r}}{9}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Hardware}{9}{subsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.1.1}Master server}{9}{subsubsection.2.2.1.1}
+\contentsline {subsubsection}{\numberline {2.2.1.2}Instalovan\IeC {\'y} stroj}{10}{subsubsection.2.2.1.2}
+\contentsline {subsubsection}{\numberline {2.2.1.3}P\IeC {\v r}ep\IeC {\'\i }na\IeC {\v c} mezi stroji}{10}{subsubsection.2.2.1.3}
+\contentsline {subsection}{\numberline {2.2.2}Konfigurace stroj\IeC {\r u}}{10}{subsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.2.1}Master}{10}{subsubsection.2.2.2.1}
+\contentsline {section}{\numberline {2.3}Testovan\IeC {\'e} frameworky}{11}{section.2.3}
+\contentsline {section}{\numberline {2.4}Foreman}{11}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Foreman Smart Proxy}{13}{subsection.2.4.1}
+\contentsline {section}{\numberline {2.5}Razor}{13}{section.2.5}
+\contentsline {section}{\numberline {2.6}Stacki}{13}{section.2.6}
+\contentsline {subsection}{\numberline {2.6.1}Edice zdarma}{14}{subsection.2.6.1}
+\contentsline {subsection}{\numberline {2.6.2}Pro pl\IeC {\'a}n}{14}{subsection.2.6.2}
+\contentsline {section}{\numberline {2.7}OpenStack Ironic}{14}{section.2.7}
+\contentsline {section}{\numberline {2.8}Spacewalk}{14}{section.2.8}
+\contentsline {section}{\numberline {2.9}Z\IeC {\'a}v\IeC {\v e}r}{15}{section.2.9}
+\contentsline {subsection}{\numberline {2.9.1}Foreman}{15}{subsection.2.9.1}
+\contentsline {subsection}{\numberline {2.9.2}Ironic}{15}{subsection.2.9.2}
+\contentsline {subsection}{\numberline {2.9.3}Ostatn\IeC {\'\i } frameworky}{15}{subsection.2.9.3}
+\contentsline {chapter}{\chapternumberline {3}Nasazen\IeC {\'\i } Foremanu}{17}{chapter.3}
+\contentsline {section}{\numberline {3.1}Topologie infrastruktury}{17}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}KVM}{17}{subsection.3.1.1}
+\contentsline {section}{\numberline {3.2}Master server}{18}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Instala\IeC {\v c}n\IeC {\'\i } skripty}{18}{subsection.3.2.1}
+\contentsline {subsubsection}{\numberline {3.2.1.1}Automatizace instalace OS Debian pomoc\IeC {\'\i } Preseed}{18}{subsubsection.3.2.1.1}
+\contentsline {paragraph}{Zp\IeC {\r u}soby preseedingu}{18}{subsubsection.3.2.1.1}
+\contentsline {paragraph}{Preseed soubor}{19}{subsubsection.3.2.1.1}
+\contentsline {subsubsection}{\numberline {3.2.1.2}Automatizace instalace CentOS/RHEL pomoc\IeC {\'\i } Kickstart}{19}{subsubsection.3.2.1.2}
+\contentsline {subsubsection}{\numberline {3.2.1.3}Diskov\IeC {\'a} rozvr\IeC {\v z}en\IeC {\'\i }}{21}{subsubsection.3.2.1.3}
+\contentsline {subsubsection}{\numberline {3.2.1.4}Standardn\IeC {\'\i } proces bootov\IeC {\'a}n\IeC {\'\i } s MBR}{21}{subsubsection.3.2.1.4}
+\contentsline {subsubsection}{\numberline {3.2.1.5}Standardn\IeC {\'\i } proces bootov\IeC {\'a}n\IeC {\'\i } s GPT}{23}{subsubsection.3.2.1.5}
+\contentsline {subsubsection}{\numberline {3.2.1.6}Na\IeC {\v s}e vyu\IeC {\v z}it\IeC {\'\i }}{24}{subsubsection.3.2.1.6}
+\contentsline {subsection}{\numberline {3.2.2}Z\IeC {\'a}lohov\IeC {\'a}n\IeC {\'\i }}{24}{subsection.3.2.2}
+\contentsline {subsection}{\numberline {3.2.3}Zabezpe\IeC {\v c}en\IeC {\'\i } serveru}{27}{subsection.3.2.3}
+\contentsline {section}{\numberline {3.3}Proxy server}{28}{section.3.3}
+\contentsline {subsection}{\numberline {3.3.1}Nastaven\IeC {\'\i } s\IeC {\'\i }t\IeC {\v e}}{28}{subsection.3.3.1}
+\contentsline {subsection}{\numberline {3.3.2}Foreman Smart Proxy}{29}{subsection.3.3.2}
+\contentsline {subsection}{\numberline {3.3.3}konfigurace DHCP}{29}{subsection.3.3.3}
+\contentsline {subsection}{\numberline {3.3.4}konfigurace TFTP}{30}{subsection.3.3.4}
+\contentsline {subsection}{\numberline {3.3.5}Zabezpe\IeC {\v c}en\IeC {\'\i } serveru}{30}{subsection.3.3.5}
+\contentsline {section}{\numberline {3.4}collectd plugin}{31}{section.3.4}
+\contentsline {subsubsection}{\numberline {3.4.0.1}bootstrap na nov\IeC {\v e} instalovan\IeC {\'y}ch serverech}{31}{subsubsection.3.4.0.1}
+\contentsline {subsubsection}{\numberline {3.4.0.2}server s ulo\IeC {\v z}en\IeC {\'y}mi daty}{32}{subsubsection.3.4.0.2}
+\contentsline {subsubsection}{\numberline {3.4.0.3}Collectd Graph Panel}{33}{subsubsection.3.4.0.3}
+\contentsline {subsection}{\numberline {3.4.1}V\IeC {\'y}voj pluginu}{34}{subsection.3.4.1}
+\contentsline {subsubsection}{\numberline {3.4.1.1}N\IeC {\'a}zev}{34}{subsubsection.3.4.1.1}
+\contentsline {subsubsection}{\numberline {3.4.1.2}P\IeC {\v r}\IeC {\'\i }prava prost\IeC {\v r}ed\IeC {\'\i }}{34}{subsubsection.3.4.1.2}
+\contentsline {subsubsection}{\numberline {3.4.1.3}Instalace pluginu}{34}{subsubsection.3.4.1.3}
+\contentsline {subsubsection}{\numberline {3.4.1.4}V\IeC {\'y}voj}{35}{subsubsection.3.4.1.4}
+\contentsline {subsubsection}{\numberline {3.4.1.5}Struktura pluginu}{35}{subsubsection.3.4.1.5}
+\contentsline {subsubsection}{\numberline {3.4.1.6}Deface}{35}{subsubsection.3.4.1.6}
+\contentsline {subsubsection}{\numberline {3.4.1.7}Content Security Policy}{35}{subsubsection.3.4.1.7}
+\contentsline {subsection}{\numberline {3.4.2}Z\IeC {\'a}v\IeC {\v e}r}{36}{subsection.3.4.2}
+\contentsline {subsubsection}{\numberline {3.4.2.1}Vytvo\IeC {\v r}en\IeC {\'\i } Gemu}{36}{subsubsection.3.4.2.1}
+\contentsline {subsubsection}{\numberline {3.4.2.2}Bal\IeC {\'\i }\IeC {\v c}ek pro OS Debian}{36}{subsubsection.3.4.2.2}
+\contentsline {subsection}{\numberline {3.4.3}Nasazen\IeC {\'\i } pluginu}{37}{subsection.3.4.3}
+\contentsline {section}{\numberline {3.5}Ansible}{37}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}Invent\IeC {\'a}\IeC {\v r}}{37}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}Spou\IeC {\v s}t\IeC {\v e}n\IeC {\'\i } p\IeC {\v r}\IeC {\'\i }kaz\IeC {\r u} v Ansible}{38}{subsection.3.5.2}
+\contentsline {subsection}{\numberline {3.5.3}Playbook pro Foreman a proxy servery}{38}{subsection.3.5.3}
+\contentsline {chapter}{Z{\' a}v{\v e}r}{41}{chapter*.4}
+\contentsline {chapter}{Literatura}{43}{section*.6}
+\contentsline {appendix}{\chapternumberline {A}Seznam pou\IeC {\v z}it\IeC {\'y}ch zkratek}{45}{appendix.A}
+\contentsline {appendix}{\chapternumberline {B}Obsah p\IeC {\v r}ilo\IeC {\v z}en\IeC {\'e}ho CD}{47}{appendix.B}

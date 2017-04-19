@@ -1,0 +1,3 @@
+:config: /etc/dhcp/dhcpd.conf
+:leases: /var/lib/dhcp/dhcpd.leases
+:omapi_port: 7911

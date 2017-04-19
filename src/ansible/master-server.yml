@@ -1,0 +1,51 @@
+-   name: "Configure foreman master node on Debian"
+    hosts: [master]
+    tasks:
+        -   debug:
+                msg: "Adding Foreman repositories."
+
+        -   apt_key: url=http://nginx.org/keys/nginx_signing.key state=present 
+
+        -   apt_repository: repo='deb deb http://nginx.org/packages/mainline/ubuntu/ xenial nginx' state=present filename='nginx' update_cache='yes'
+
+        -   debug:
+                msg: "Will install needed packages."
+
+        -   apt:
+                package: "{{item}}"
+                state: latest
+                update_cache: yes
+            with_items:
+                - foreman-installer
+
+#       -   name: Install Foreman master using installer
+#            command: foreman-installer   --enable-foreman-proxy   --foreman-proxy-tftp=true   --foreman-proxy-tftp-servername=192.168.40.1   --foreman-proxy-dhcp=true   --foreman-proxy-dhcp-interface=eth3   --foreman-proxy-dhcp-gateway=192.168.40.1   --foreman-proxy-dhcp-nameservers="192.168.40.1"   --foreman-proxy-dns=true   --foreman-proxy-dns-interface=eth3   --foreman-proxy-dns-zone=cdn77.eu   --foreman-proxy-dns-reverse=40.168.192.in-addr.arpa --foreman-proxy-dns-forwarders=8.8.8.8   --foreman-proxy-dns-forwarders=8.8.4.4   --foreman-proxy-foreman-base-url=https://autoinstall-1.cdn77.eu --foreman-proxy-oauth-consumer-key=6BDzQbQDyV8avVpkLyskMKrZeej7AuLH   --foreman-proxy-oauth-consumer-secret=WsM4M9M4wRiXW2gyppSqDgFd84sFhWWJ
+
+        -   debug:
+                msg: "Please start now foreman-installer and install master server."
+
+        -   name: Create /etc/foreman/plugins
+            file: path=/etc/foreman/plugins state=directory owner=root group=root mode=0775 recurse=yes
+
+        -   name: Copy conf files
+            copy: src=files/master-server/foreman/{{item.filename}} dest=/etc/foreman/{{item.filename}}
+            with_items:
+                - database.yml
+                - email.yml
+                - logging.yml
+# copy templates for OSs now
+        -   debug:
+                msg: "Copy templates for installable OSs."
+
+
+        -   debug:
+                msg: "Configure iptables."
+
+        -   iptables_raw:
+            name: enable_https
+            rules: ''
+
+        -   iptables_raw:
+            name: enable_ctd
+            rules: ''
+

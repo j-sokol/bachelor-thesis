@@ -1,0 +1,89 @@
+-   name: "Configure server receiving collectd metrics on Debian"
+    hosts: [collectd]
+    tasks:
+        -   debug:
+                msg: "Installing collectd server."
+
+        -   apt:
+                package: "{{item}}"
+                state: latest
+                update_cache: yes
+            with_items:
+                - collectd
+                - apache2
+                - libapache2-mod-php
+                - rrdtool
+
+        -   debug:
+                msg: "Configure collectd."
+
+        -   copy: src=files/collectd-server/collectd.conf dest=/etc/collectd/collectd.conf
+            notify:
+                - restart_COLLECTD       
+
+# fix FIXME
+
+        -   copy: src=files/collectd-server/auth_file dest=/etc/collectd/auth_file
+            notify:
+                - restart_COLLECTD       
+
+
+# change FIXME-HOSTNAME
+
+        -   debug:
+                msg: "Configure apache."
+
+
+        -   name: enabled mod_rewrite
+            apache2_module: name=rewrite state=present
+            notify:
+                - restart_APACHE
+
+
+        -   name: enabled mod_php
+            apache2_module: name=php state=present
+            notify:
+                - restart_APACHE
+
+# is php already working like so?
+
+        -   name: Clone Collectd Graph Panel repo
+            git:
+                repo: https://github.com/pommi/CGP
+                dest: /var/www/
+                version: master
+                update: no
+
+        -   name: Create Apache SSL directory
+            file: name=/etc/apache2/ssl state=directory owner=root mode=0700
+
+        -   name: create self-signed SSL cert
+            command: openssl req -new -nodes -x509 -subj "/C=CZ/ST=Czechia/L=Prague/O=IT/CN=${ansible_fqdn}" -days 3650 -keyout /etc/apache2/ssl/server.key -out /etc/apache2/ssl/server.crt -extensions v3_ca creates=/etc/apache2/ssl/server.crt
+            notify:
+                - restart_APACHE
+
+# ssl vhost
+# disable enabled vhosts
+# create .htaccess
+
+        -   debug:
+                msg: "Configure iptables."
+
+        -   iptables_raw:
+            name: enable_https
+            rules: ''
+
+        -   iptables_raw:
+            name: enable_ctd
+            rules: ''
+
+
+
+
+    handlers:
+        -   name: restart_COLLECTD
+            service: name=collectd state=restarted
+
+        -   name: restart_APACHE
+            service: name=apache2 state=restarted
+

@@ -1,0 +1,3 @@
+:enabled: https
+:tftproot: /srv/tftp
+:tftp_servername: FIXME # (i.e. IP address of this proxy being installed)

@@ -1,0 +1,141 @@
+# 
+-   name: "Configure foreman proxy server on Debian"
+    hosts: [proxy]
+    tasks:
+        -   debug:
+                msg: "Adding Foreman repositories."
+
+        -   apt_key: url=http://nginx.org/keys/nginx_signing.key state=present 
+
+        -   apt_repository: repo='deb deb http://nginx.org/packages/mainline/ubuntu/ xenial nginx' state=present filename='nginx' update_cache='yes'
+
+        -   debug:
+                msg: "Will install needed packages."
+
+        -   apt:
+                package: "{{item}}"
+                state: latest
+                update_cache: yes
+            with_items:
+                - apache2
+                - isc-dhcp-server
+                - xinetd
+                - tftpd
+                - tftp
+
+        -   debug:
+                msg: "Configure networking."
+
+        -   name: Enable IPv4 traffic forwarding (etc/sysctl.conf)
+            lineinfile: dest=/etc/sysctl.conf regexp="^net.ipv4.ip_forward" line="net.ipv4.ip_forward=1"
+
+        -   name: Enable IPv4 traffic forwarding (/proc/sys/net/ipv4/ip_forward)
+            command: echo 1 > /proc/sys/net/ipv4/ip_forward
+
+        -   iptables_raw:
+            name: enable_masquarade
+            rules: '-t nat -A POSTROUTING -o eth0 -j MASQUERADE'
+
+# do rest of iptables
+
+        -   debug:
+                msg: "Configure DHCP."
+
+        -   file: path=/etc/dhcp/dhcpd.hosts state=touch
+
+        -   copy: src=files/proxy-server/dhcp/dhcpd.conf dest=/etc/dhcp/dhcpd.conf
+            notify:
+                - restart_DHCP       
+
+
+# FIXME-SUBNET -> subnet IP  ip in tftp.yml 
+# FIXME-IP -> server ip in tftp.yml 
+
+        -   debug:
+                msg: "Configure TFTP."
+
+        -   copy: src=files/proxy-server/tftp dest=/etc/xinetd.d/tftp
+            notify:
+                - restart_TFTP       
+
+# FIXME-IP -> server ip in tftp.yml 
+
+        -   name: Create TFTP directory
+            file: path=/srv/tftp state=directory owner=foreman-proxy group=foreman-proxy mode=0775 recurse=yes
+
+        -   file: path=/srv/tftp/{{item}} state=directory owner=foreman-proxy group=foreman-proxy mode=0775 recurse=yes
+            with_items: 
+                - boot
+                - poap.cfg
+                - ztp.cfg
+                - pxelinux.cfg
+
+        -   name: Download and unpack Foreman Discovery Image
+            unarchive:
+                src: "http://downloads.theforeman.org/discovery/releases/3.2/fdi-image-latest.tar"
+                dest: "/srv/tftp/boot"
+                copy: no
+
+        -   name: Download and unpack Syslinux archive
+            unarchive:
+                src: "https://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-5.10.tar.gz"
+                dest: "/tmp"
+                copy: no
+
+        -    name: Copy syslinux files
+             copy: src={{ item.src }} dest={{ item.dest }}
+             with_items:
+               - { src: '/tmp/syslinux-5.10/com32/chain/chain.c32', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/com32/lib/libcom32.c32', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/com32/elflink/ldlinux/ldlinux.c32', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/com32/libutil/libutil.c32', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/com32/mboot/mboot.c32', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/memdisk/memdisk', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/core/pxelinux.0', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/com32/mboot/mboot.c32 ', dest: '/srv/tftp' }
+               - { src: '/tmp/syslinux-5.10/com32/menu/menu.c32', dest: '/srv/tftp' }
+
+
+        -   debug:
+                msg: "Configure Foreman Proxy."
+
+        -   name: Create /etc/foreman-proxy/ssl/private_keys
+            file: path=/etc/foreman-proxy/ssl/private_keys state=directory owner=root group=root mode=0775 recurse=yes
+
+        -   name: Create /etc/foreman-proxy/ssl/certs
+            file: path=/etc/foreman-proxy/ssl/certs state=directory owner=root group=root mode=0775
+
+        -   name: Create /etc/foreman-proxy/settings.d
+            file: path=/etc/foreman-proxy/ssl/certs state=directory owner=foreman-proxy group=foreman-proxy mode=0775
+
+
+        -   name: Copy conf files
+            copy: src=files/proxy-server/foreman-proxy/{{item.filename}} dest=/etc/foreman-proxy/{{item.filename}}
+            with_items:
+                - settings.yml
+                - settings.d/bmc.yml
+                - settings.d/dhcp.yml
+                - settings.d/dhcp_isc.yml
+                - settings.d/dhcp_isc.yml
+                - settings.d/dns.yml
+                - settings.d/dns_nsupdate.yml
+                - settings.d/tftp.yml
+
+
+# replace FIXME-MASTER -> master FQDN in settings.yml
+# replace FIXME ->  FQDN in settings.yml
+# FIXME-IP -> server ip in tftp.yml 
+
+# send generated keys from master to proxies
+
+# sooo -> fetch from remote (i.e. master)
+# after that copy key securely https://blog.confirm.ch/deploying-ssl-private-keys-with-ansible/
+
+    handlers:
+        -   name: restart_TFTP
+            service: name=xinetd state=restarted
+
+         -   name: restart_DHCP
+            service: name=isc-dhcp-server state=restarted
+
+

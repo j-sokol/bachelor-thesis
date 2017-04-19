@@ -1,0 +1,5 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZsh{} apt\PYGZhy{}get install apache2 libapache2\PYGZhy{}mod\PYGZhy{}php
+
+\PYGZsh{} a2enmod mod\PYGZus{}php
+\end{Verbatim}

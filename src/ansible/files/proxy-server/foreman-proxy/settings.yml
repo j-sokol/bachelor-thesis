@@ -1,0 +1,13 @@
+:settings_directory: /etc/foreman-proxy/settings.d
+:ssl_ca_file: /etc/foreman-proxy/ssl/certs/ca.pem
+:ssl_certificate: /etc/foreman-proxy/ssl/certs/FIXME-PROXYHOST.pem
+:ssl_private_key: /etc/foreman-proxy/ssl/private_keys/FIXME-PROXYHOST.pem
+:trusted_hosts:
+  - FIXME-MASTERHOST # (i.e. master address)
+:foreman_url: FIXME-MASTERHOST # master 
+:daemon: true
+:bind_host: '*'
+:https_port: 8443
+:log_level: INFO 
+:log_buffer: 2000
+:log_buffer_errors: 1000

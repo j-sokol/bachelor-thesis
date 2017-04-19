@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+[Unit]
+Description=Rsync Server Activation Socket
+ConditionPathExists=/etc/rsyncd.conf
+
+[Socket]
+ListenStream=873
+Accept=true
+
+[Install]
+WantedBy=sockets.target
+\end{Verbatim}
