@@ -1,1 +1,2 @@
-# bachelor-thesis of FIT CTU in Prague.
+# bachelor-thesis on FIT CTU in Prague.
+
