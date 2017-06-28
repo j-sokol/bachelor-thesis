@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} lib/foreman\PYGZus{}colletctd\PYGZus{}graphs/engine.rb}
+initializer \PYG{l+s+s1}{\PYGZsq{}foreman\PYGZus{}colletctd\PYGZus{}graphs.register\PYGZus{}plugin\PYGZsq{}},
+ 		:before \PYG{o}{=}\PYGZgt{} :finisher\PYGZus{}hook \PYG{k}{do} \PYG{p}{|}app\PYG{p}{|}
+  Foreman::Plugin.register :foreman\PYGZus{}colletctd\PYGZus{}graphs \PYG{k}{do}
+    \PYG{c+c1}{\PYGZsh{} the code of our plugin}
+  end
+end
+\end{Verbatim}

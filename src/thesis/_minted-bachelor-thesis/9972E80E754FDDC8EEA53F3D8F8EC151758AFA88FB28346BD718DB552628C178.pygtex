@@ -1,0 +1,28 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+Ansible
+\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}
+
+ \PYGZhy{} Installation:
+ 	http://docs.ansible.com/intro\PYGZus{}installation.html
+ \PYGZhy{} Ansible version should be \PYGZlt{} 2.0
+
+Setup
+\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}
+
+ 1. Clone this repository
+ 1. Change `hosts` file according to your needs
+ 1. Change values specified in group\PYGZus{}vars/* files
+
+Running playbooks
+\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}
+
+		ansible\PYGZhy{}playbook \PYGZhy{}i \PYGZlt{}hosts\PYGZus{}file\PYGZgt{} \PYGZlt{}playbook\PYGZgt{}
+		 \PYGZhy{}\PYGZhy{}check
+
+Example:
+
+		ansible\PYGZhy{}playbook \PYGZhy{}i hosts proxy\PYGZus{}server.yml
+		 \PYGZhy{}\PYGZhy{}check
+
+Run these without `\PYGZhy{}\PYGZhy{}check` to apply changes on server.
+\end{Verbatim}

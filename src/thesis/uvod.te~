@@ -1,0 +1,18 @@
+
+\begin{introduction}
+Jakýkoliv hardware spojovaný s~počítači, dříve než začne vykonávat svoji činnost, vyžaduje mít nainstalovaný a správně nakonfigurovaný software. Příkladem může být obyčejný stolní počítač, který potřebuje v~sobě mít nainstalovaný operační systém spolu s~ovladači. Tato instalace spolu s~následující konfigurací může být časově poměrně náročná. Pokud ale těchto počítačů, potažmo serverů bez nainstalovaného operačního systému (pozn. v~angličtině bare metal machine) máme desítky, dokonce stovky, čas vložený do instalace těchto strojů se může vyšplhat na neúnosné číslo. Takovouto mechanickou a nijak záživnou práci je systémový administrátor, či osoba pracující v~serverovně nucena pravidelně vykonávat. Mnoho chytrých hlav nad problémem automatizace zmíněných úkonů produmalo dlouhé večery. Z~tohoto úsilí na svět přišla řada nástrojů na zavedení operačního systému do čistého serveru. Tyto nástroje jsou hojně využívány jak v~komerčním prostředí, tak v~akademickém.
+
+Životní cyklus serveru se skládá ze tří částí:
+\begin{itemize}
+\item provisioning, tedy chvíle, kdy se snažíme oživit server. Mezi to patří konfigurace DHCP, DNS a dalších částí, které potřebujeme, aby stroj komunikoval se sítí. Pro slovo provisioning není v~češtině jednoduchý překlad. Vysvětlil bych ho takto: vytvoření a nakonfigurování nového stroje (ať už virtuálního, nebo s~opravdovým hardware) tak, že bude obsahovat nainstalovaný operační systém a nakonfigurovaný přístup k~síti, aby bylo možné s~ním komunikovat,
+\item konfigurace, tj. část práce, kdy se snažíme server dostat do pro nás použitelné podoby -- instalujeme dodatečné balíčky a nastavíme je,
+\item reportování, což je část cyklu, kdy je na serveru již vše nastaveno a monitorujeme správnou funkci.
+\end{itemize}
+
+
+
+\section{Cíl práce}
+Bakalářská práce má za úkol sestavit infrastrukturu pro plně automatizovanou instalaci serverů. Předchází tomu popis jednotlivých standardů a protokolů využívaných pro dané úkony. Další částí práce je analýza jednotivých frameworků -- od více k~méně populárním. V~práci jsou zahrnuty pouze open-source řešení. Existují také placené frameworky s~profesionální podporou, o~nich ale práce nepojednává. Z~této analýzy je cílem vybrat nejvhodnější framework pro naše požadavky.
+
+Vzniklý systém s~vybraným frameworkem má mít možnost škálování. Tím je myšleno přídání dalších datacenter, tj. přídání dalších oddělených LAN sítí do správy infrastruktury.
+\end{introduction}

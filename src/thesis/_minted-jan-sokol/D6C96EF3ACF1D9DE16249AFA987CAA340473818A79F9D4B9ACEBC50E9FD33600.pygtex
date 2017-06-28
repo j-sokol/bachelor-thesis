@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} /opt/puppetlabs/bin/puppet cert \PYGZhy{}\PYGZhy{}generate \PYGZdl{}HOSTNAME
-\end{Verbatim}

@@ -1,0 +1,237 @@
+
+\section{Master server}
+
+Master server je instalován na operačním systému Debian, na serveru virtualizovaném pomocí infrastruktury KVM. Hlavní službou je nástroj Foreman, jehož instalace je dále popsána.
+
+\subsection{Foreman}
+
+Před samotnou instalací je třeba přidat repozitáře pro balíčkovací utilitu apt-get, jelikož verze chtěných aplikací nemusí být v~oficiálních repozitářích aktuální.
+
+\begin{minted}{bash}
+echo "deb http://deb.theforeman.org/ jessie 1.14"
+    > /etc/apt/sources.list.d/foreman.list
+echo "deb http://deb.theforeman.org/ plugins 1.14"
+    >> /etc/apt/sources.list.d/foreman.list
+apt-get -y install ca-certificates
+wget -q https://deb.theforeman.org/pubkey.gpg -O- | apt-key add -
+\end{minted}
+
+Poté co jsou přidány repozitáře je možné nainstalovat  \mintinline{latex}{foreman-installer}.
+
+\begin{minted}{bash}
+apt-get update && apt-get -y install foreman-installer
+\end{minted}
+
+Instalátor je možné spustit buď v~interaktivním módu, kdy je uživatel dotázán na nastavení na obrazovce. Druhou možností je vyplnění konfiguračního souboru \mintinline{latex}{/etc/foreman-installer/scenarios.d/foreman-answers.yaml}, ze kterého si instalátor sebere odpovědi automaticky. V~příloze práce je tento soubor vyplněn. (Vytvořen jako šablona v~Ansible).
+
+
+V~interaktivním módu je vygenerováno heslo pro uživatele admin, pomocí kterého je možné se přihlásit do uživatelského webového rozhraní. Pokud použijeme Ansible z~přílohy práce, je třeba toto heslo v~konfiguračním souboru \mintinline{latex}{defaults/defaults.yaml} upravit a to bude aplikováno.
+
+
+\subsubsection{Disková rozdělení}
+
+V~teoretické části práce byly popsány výhody a nevýhody formátování oddílů disku pomocí MBR či GPT. V~instalovaných serverech touto infrastrukturou se bude používat MBR pro malé disky (do 1TB) a to z~důvodu kompatibility základních desek. Při větších kapacitách již využijeme GPT rozdělení z~důvodů popsaných v~teoretické části práce.
+
+Práce obsahuje šablony pro operační systémy Debian a CentOS (a operační systémy z~nich odvozené) a to pro:
+\begin{table}[]
+\centering
+\caption{Podpora diskových rozdělení}
+\label{gptnmbr}
+\begin{tabular}{lll}
+        & Kickstart  & Preseed    \\
+NO RAID & GPT \& MBR & GPT \& MBR \\
+RAID1   & GPT \& MBR & GPT \& MBR \\
+RAID0   & GPT \& MBR & GPT \& MBR
+\end{tabular}
+\end{table}
+
+
+\subsection{Zálohování}
+
+V~případě této práce je v~konfiguraci užita relační databáze PostgreSQL. V~databázi jsou uloženy  informace o~serverech, statistiky a metadata Foremanu. Díky tomu, že krátký čas odstávky vadit nebude, je možné si dovolit udělat zálohu databáze metodou dump. Obecně dump je soubor, který obsahuje strukturu tabulek a dále data obsažená v~těchto tabulkách. Dle rady v~manuálu \cite{foreman-backup} dále zálohujeme adresáře
+
+\begin{itemize}
+\item \mintinline{latex}{/etc/foreman} obsahující všechny konfigurační soubory Master Foremanu
+\item \mintinline{latex}{/var/lib/puppet/ssl} -- obsahující certifikáty
+\end{itemize}
+
+Celé zálohování blíže popisuje shellový skript uložený v~\\\mintinline{latex}{/usr/local/bin/foreman-backup.sh}:
+\begin{minted}{text}
+#!/usr/bin/env bash
+
+# Backup The Foreman, following the advice at
+# http://theforeman.org/manuals/1.7/index.html#5.5.1Backup
+
+set -e # If any command fails, stop this script.
+ME=$(basename $0)
+main () {
+
+  DATE=$(date '+%Y%m%d.%H%M')
+  BACKUPDIR=/data/backups/backup-$DATE
+  mkdir $BACKUPDIR
+  chgrp postgres $BACKUPDIR
+  chmod g+w $BACKUPDIR
+
+  cd $BACKUPDIR
+
+  # Backup postgres database
+  su - postgres -c "pg_dump -Fc foreman > $BACKUPDIR/foreman.dump"
+
+  # Backup config ifles
+
+  tar --selinux -czf $BACKUPDIR/etc_foreman_dir.tar.gz
+      /etc/foreman
+  tar --selinux -czf $BACKUPDIR/var_lib_puppet_dir.tar.gz
+      /var/lib/puppet/ssl
+  tar --selinux -czf $BACKUPDIR/tftpboot-dhcp.tar.gz
+      /var/lib/tftpboot /etc/dhcp/ /var/lib/dhcpd/
+
+  ls -lh *tar.gz foreman.dump
+
+}
+
+main 2>&1 | /usr/bin/logger -t $ME
+\end{minted}
+
+Tento skript je spouštěn každý den ve 2 hodiny ráno. Opakované spouštění je řešeno pro UNIX klasickým způsobem, tedy pomocí CRON démona. Řádek v~CRON tabulce pro uživatele root (otevřeme pomocí příkazu \mintinline{latex}{crontab -e}) vypadá následovně:
+
+\begin{minted}{text}
+2 0 * * *  /usr/local/bin/foreman-backup.sh
+\end{minted}
+
+
+
+Následovně ještě celý filesystem serveru zálohujeme pomocí utility backuppc \cite{backuppc}. Jediné co je pro klienta potřebné spustit, je rsync v~démon módu. Nainstalujeme tedy rsync a vytvoříme služby pro systemd.
+
+Je potřeba vytvořit soubor  \mintinline{latex}{/etc/systemd/system/rsyncd.socket} s~obsahem:
+\begin{minted}{text}
+[Unit]
+Description=Rsync Server Activation Socket
+ConditionPathExists=/etc/rsyncd.conf
+
+[Socket]
+ListenStream=873
+Accept=true
+
+[Install]
+WantedBy=sockets.target
+\end{minted}
+
+Soubor se systemd službou, nacházející se v~\\\mintinline{latex}{/etc/systemd/system/rsyncd@.service}:
+
+\begin{minted}{text}
+[Unit]
+Description=Rsync Server
+After=local-fs.target
+ConditionPathExists=/etc/rsyncd.conf
+
+[Service]
+# Note: this requires /etc/rsyncd.conf
+ExecStart=/usr/bin/rsync --daemon
+StandardInput=socket
+\end{minted}
+
+
+
+Dříve, než můžeme tuto službu použít, je ještě potřeba vytvořit soubor \mintinline{latex}{/etc/rsyncd.conf}. V~nejjednodušší konfiguraci bude obsahovat:
+
+\begin{minted}{text}
+lock file = /var/run/rsync.lock
+log file = /var/log/rsyncd.log
+pid file = /var/run/rsyncd.pid
+
+[foreman]
+    path = /home/foreman
+    uid = rsync
+    gid = rsync
+    read only = no
+    list = yes
+    auth users = rsyncclient
+    secrets file = /etc/rsyncd.secrets
+    hosts allow = 192.168.1.0/255.255.255.0
+\end{minted}
+
+
+Soubor \mintinline{latex}{/etc/rsyncd.secrets} obsahuje uživatelská jména a hesla oddělená dvojtečkou. Následovně je třeba nastavit na souboru správná přístupová práva, aby ostatní uživatelé nebyli schopni soubor číst, či nijak upravovat.
+\begin{minted}{text}
+# chmod 600 /etc/rsyncd.secrets
+\end{minted}
+
+
+\subsection{Zabezpečení serveru}
+
+Jedním z~prvků zabezpečení je nastavení firewallu na serveru. Protože používáme operační systém Debian, jako firewall máme k~dispozici iptables. Na serveru zakážeme všechny porty mimo:
+
+\begin{table}[h]
+\centering
+\caption{Otevřené porty na hlavním uzlu}
+\label{my-label}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+
+Port &	Protokol &	Potřebné pro  \\ \midrule
+53 &	TCP \& UDP &	DNS Server \\
+67, 68 &	UDP &	DHCP  Server \\
+69 &	UDP	&  TFTP Server \\
+ 443 &	TCP HTTP\/S &  Foreman UI a provisioning templates \\
+3000 &	TCP	HTTP &  Foreman UI a provisioning templates \\
+3306 &	TCP &	v~případě oddělené PostgreSQL databáze \\
+5910 - 5930 &	TCP &	Server VNC Consoles \\
+5432 &	TCP &	v~případě oddělené PostgreSQL databáze \\
+8140 &	TCP &	Puppet Master \\
+8443 &	TCP &	Smart Proxy, otevřená pouze pro Foreman \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\label{lets-encrypt}
+Dalším krokem je vynucení SSL při připojení do webového rozhraní Foremanu. V~posledních letech byl představen projekt Let's Encrypt pod záštitou neziskové instituce Internet Security Research Group (ISRG). Let's Encrypt otevřená certifikační autorita (CA), nabízející digitální certrifikáty potřebné k~HTTPS (SSL/TLS) zdarma.
+
+V~našem případě, kdy pro frontend využíváme webový server Apache (httpd) je vytvoření a obnova certifikátu velmi jednoduchá. Před vygenerováním certifikátu je nutné nastavit DNS A~záznam tak, aby mířil na IP adresu přiřazenou našemu serveru. Tento A~záznam musí být stejný jako hostname nastavený na serveru.  Postup instalace certifikátu a jeho obnovení je následovný:
+
+Nainstalujeme balíček s~názvem certbot:
+
+\begin{minted}{text}
+# apt-get install python-certbot-apache
+\end{minted}
+
+Aktuálně už můžeme certbot klient použít. Vygenerování SSL certifikátu pro Apache je poměrně přímočaré. Klient automaticky získá a nainstaluje nový SSL certifikát pro validní domény v~Apache konfiguraci.
+
+Interaktivní instalaci certifikátů vyvoláme pomocí příkazu:
+
+\begin{minted}{text}
+# certbot --apache
+\end{minted}
+
+
+Certbot projde získanou Apache konfiguraci a najde domény, které by měli být v~žádosti o~certifikát obsaženy. Interaktivně je možné jakoukoliv doménu odebrat. Utilita se dotáže na email potřebný při ztrátě klíče a dá nám na výběr ze dvou možností:
+
+\begin{itemize}
+\item povolený http a https přístup, pokud je nějaká potřeba pro nezašifrovanou komunikaci,
+\item nebo přesměrování z~http na https, které my využijeme.
+\end{itemize}
+
+Když instalace proběhne, vytvořené certifikáty spolu se soukromým klíčem jsou k~dispozici v~adresáři \mintinline{latex}{/etc/letsencrypt/live}.
+
+Zda je certifikát validní je možné zjistit například pomocí následujícího odkazu:
+
+\begin{minted}{text}
+https://www.ssllabs.com/ssltest/analyze.html?d=example.com\&latest
+\end{minted}
+
+Certifikáty vydávané autoritou Let's Encrypt jsou validní na 90 dní, proto je potřeba je po uplynulé době obnovovat. Doporučená doba k~tomu je 60 dní. Aplikace ertbot obsahuje parametr renew, pomocí kterého certifikát obnovíme.
+
+Praktickým způsobem, jak na linuxovém stroji vykonávat nějakou činnost opakovaně, je cron démon. Protože obnovovací příkaz zjišťuje pouze datum expirace a obnoví certifikát pouze pokud do expirace zbývá méně, než 30 dní, není problém tuto činnost spustit například jednou týdně.
+
+Úpravu CRON tabulky uživatele root provedeme následovně:
+
+\begin{minted}{text}
+# crontab -e
+\end{minted}
+
+Příkaz otevřel soubor \mintinline{latex}{/var/spool/cron/crontabs} pomocí našeho editoru. Do souboru přidáme řádek a uložíme:
+
+\begin{minted}{bash}
+30 2 * * 1 /usr/bin/certbot renew >> /var/log/le-renew.log
+\end{minted}
+
+Tato část automaticky spustí aplikaci \mintinline{latex}{/usr/bin/certbot renew} každé pondělí ve dvě ráno, v~době, kdy by server neměl být tak těžce zatížen. Informace o~průběhu se uloží do logu v~adresáři \mintinline{latex}{/var/log}.

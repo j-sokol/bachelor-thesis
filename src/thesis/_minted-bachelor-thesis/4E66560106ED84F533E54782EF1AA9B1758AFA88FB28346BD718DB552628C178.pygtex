@@ -1,0 +1,31 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZsh{} Foreman\PYGZhy{}collectd\PYGZhy{}plugin
+
+Collectd plugin for foreman showing graphs from collectd graph
+panel running on hostname set in config file.
+
+\PYGZsh{}\PYGZsh{} Installation
+
+See [How\PYGZus{}to\PYGZus{}Install\PYGZus{}a\PYGZus{}Plugin](http://projects.theforeman.org/proj
+	ects/foreman/wiki/How\PYGZus{}to\PYGZus{}Install\PYGZus{}a\PYGZus{}Plugin)
+for how to install Foreman plugins
+
+\PYGZsh{}\PYGZsh{} Config file
+
+create file collectd\PYGZhy{}graph\PYGZhy{}plugin.yml in /etc/foreman/plugins
+ with following:
+```
+  :collectd\PYGZhy{}graph\PYGZhy{}plugin:
+    :hostname: collectd.weedtime.cz/CGP/
+```
+where on collectd.weedtime.cz/CGP/ is running collectd graph
+pannel, see https://github.com/pommi/CGP
+
+\PYGZsh{}\PYGZsh{} Contributing
+
+Fork and send a Pull Request. Thanks!
+
+\PYGZsh{}\PYGZsh{} Copyright
+
+Copyright (c) 2017 Jan Sokol GNU GPL 3
+\end{Verbatim}

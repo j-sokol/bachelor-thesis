@@ -1,0 +1,22 @@
+
+
+
+\begin{conclusion}
+
+Úkolem této bakalářské práce bylo seznámení se s~instalací bare-metal serverů. Po seznámení se s~jednotlivými standardy, bylo třeba analyzovat frameworky, které jsou pro tuto činnost určené. Z~nich poté jeden nejvíce vyhovující vybrat, splňující: podpora grafického prostředí (a to nejlépe webové), možnost pomocí něj instalovat alespoň operační systémy Debian a CentOS. Do zadání patřilo jeden vybraný framework nasadit a do něj vytvořit plugin zobrazující grafy ze zdroje collectd.
+
+Mezi analyzované frameworky patřily: Foreman, Openstack Ironic, Razor, Stacki, Spacewalk a Cobbler. Jako kritéria jsem mimo jiné vybral open-source licence, složitost používání a administrace, stáří projektu a podpora discovery. Kritéria nejlépe splnil framework Foreman, který je nejenom nejdéle vyvíjený, s~největší komunitou, ale dle mého uvážení také obsahuje nejpřívětivější uživatelské rozhraní.
+
+Foreman byl poté nasazen na produkční prostředí a aktuálně je pomocí něj nainstalováno okolo 1000 serverů. V~infrastruktuře jako takové se větší problémy nevyskytly, pouze jsou třeba úpravy při přidávání strojů s~novými základními deskami, či při přidání nových operačních systémů. Dle zadání práce byl naprogramován plugin, jehož prostředí je možné vidět v~příloze. Funkčnosti bylo docíleno s~pomocí projektu Collectd Graph Panel, odkud plugin grafy získává. Plugin splnil veškeré očekávání a je stále v~infrastruktuře nasazen. Pro jednoduchost nasazení práce též obsahuje konfigurační skripty pro nástroj Ansible.
+
+Zpracování této bakalářské práce pro mě mělo velký přínos. Velmi mi prohloubilo pochopení protokolů jako DHCP, TFTP a dalších v~PXE standardu. Získání zkušeností s~nástrojem Ansible je také velmi důležité, jelikož je v dalších projektech využiji. Jako další rozšíření této práce může být například instalace operačního systému Windows nebo již zmíněné propojení pluginu z~práce s~rozšířením foreman-colly.
+
+%Cílem této bakalářské práce bylo prvně analyzovat frameworky pro instalaci bare metal serverů a následně vybrat jeden, který splňuje požadavky. Dále tento framework s~úpravami nasadit.  Mezi počáteční kritéria výběru mimo jiné patřilo, aby vybraný produkt byl open-source. Na základě analýz byl vybrán framework Foreman, protože měl oproti konkurenci vyčnívající uživatelské rozhraní přístupné přes webový prohlížeč. Podpora operačních systémů, které přes něj lze instalovat, byla také jedna z~nejširších -- podporuje instalaci linuxových distribucí jako OS Debian a CentOS (což bylo naší počáteční podmínkou), Arch Linux, distribucí založených na BSD a s~úpravami také instalace OS Windows.
+
+%Další kapitola práce se věnovala nasazení frameworku Foreman vybraného v~předchozí části. Součástí nasazení bylo vytvoření šablon pro operační systémy využívající instalátor kickstart (tedy CentOS a linuxové distribuce na něm založené) a instalátor Preseed (Debian, Ubuntu a distribuce na nich sestavené). Práce tedy obsahuje šablony pro vytvoření diskových rozložení GPT a MBR, a to oboje pro disky bez RAID technologie, RAID1 a RAID0.
+
+%Práce též obsahuje plugin do grafického rozhraní Foremanu, který bude zobrazovat grafy získané z~démonu collectd. Tohoto bylo docíleno s~pomocí projektu Collectd Graph Panel, odkud plugin grafy získává. V~práci je popsáno, jak infrastrukturu pro funkční plugin sestavit. Plugin je dostupný téže jako open-source pod licencí GNU-GPL s~odkazem v~literatuře.
+
+%Pro jednoduché sestavení celé infrastruktury práce také obsahuje konfigurační skripty, tzv. playbooky pro nástroj Ansible. Zpracování této bakalářské práce pro mě mělo velký přínos. Velmi mi prohloubilo pochopení protokolů jako DHCP, TFTP a dalších v~PXE standardu. Získání zkušeností s~nástrojem Ansible je také velmi důležité, které v~dalších projektech využiji.
+
+\end{conclusion}

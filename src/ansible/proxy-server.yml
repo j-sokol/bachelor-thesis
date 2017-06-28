@@ -1,13 +1,24 @@
-# 
+#
 -   name: "Configure foreman proxy server on Debian"
     hosts: [proxy]
+    vars:
+        - foreman_master_hostname: foreman.weedtime.cz
+
     tasks:
         -   debug:
                 msg: "Adding Foreman repositories."
 
-        -   apt_key: url=http://nginx.org/keys/nginx_signing.key state=present 
+        - name: Ensure python-apt is installed
+          command: >
+            apt-get install python-apt -y -q
+            creates=/usr/share/doc/python-apt
 
-        -   apt_repository: repo='deb deb http://nginx.org/packages/mainline/ubuntu/ xenial nginx' state=present filename='nginx' update_cache='yes'
+
+        -   apt_key: url=https://deb.theforeman.org/pubkey.gpg state=present
+
+        -   apt_repository: repo='deb http://deb.theforeman.org/ jessie 1.14' state=present filename='foreman.list' update_cache='yes'
+        -   apt_repository: repo='deb http://deb.theforeman.org/ plugins 1.14' state=present filename='foreman.list' update_cache='yes'
+
 
         -   debug:
                 msg: "Will install needed packages."
@@ -22,6 +33,7 @@
                 - xinetd
                 - tftpd
                 - tftp
+                - foreman-proxy
 
         -   debug:
                 msg: "Configure networking."
@@ -32,11 +44,10 @@
         -   name: Enable IPv4 traffic forwarding (/proc/sys/net/ipv4/ip_forward)
             command: echo 1 > /proc/sys/net/ipv4/ip_forward
 
-        -   iptables_raw:
-            name: enable_masquarade
-            rules: '-t nat -A POSTROUTING -o eth0 -j MASQUERADE'
+        -   name: enable_masquarade
+            shell: 'iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE'
 
-# do rest of iptables
+# rest of iptables not in this playbook
 
         -   debug:
                 msg: "Configure DHCP."
@@ -45,26 +56,40 @@
 
         -   copy: src=files/proxy-server/dhcp/dhcpd.conf dest=/etc/dhcp/dhcpd.conf
             notify:
-                - restart_DHCP       
+                - restart_DHCP
+
+        - replace:
+             path: /etc/dhcp/dhcpd.conf
+             regexp: 'FIXME-SUBNET-PART'
+             replace: "{{ ansible_eth1.ipv4.address.rpartition('.')[0]  }}"
+             backup: yes
+        #
+        - replace:
+             path: /etc/dhcp/dhcpd.conf
+             regexp: 'FIXME-IP'
+             replace: "{{ ansible_eth1.ipv4.address }}"
+             backup: yes
 
 
-# FIXME-SUBNET -> subnet IP  ip in tftp.yml 
-# FIXME-IP -> server ip in tftp.yml 
+# FIXME-SUBNET -> subnet IP  ip in tftp.yml KK?
+# FIXME-IP -> server ip in tftp.yml KK?
 
         -   debug:
                 msg: "Configure TFTP."
 
         -   copy: src=files/proxy-server/tftp dest=/etc/xinetd.d/tftp
             notify:
-                - restart_TFTP       
+                - restart_TFTP
 
-# FIXME-IP -> server ip in tftp.yml 
+# FIXME-IP -> server ip in tftp.yml
 
         -   name: Create TFTP directory
-            file: path=/srv/tftp state=directory owner=foreman-proxy group=foreman-proxy mode=0775 recurse=yes
+            file: path=/srv/tftp/ state=directory owner=foreman-proxy group=foreman-proxy mode=0775 recurse=yes
 
-        -   file: path=/srv/tftp/{{item}} state=directory owner=foreman-proxy group=foreman-proxy mode=0775 recurse=yes
-            with_items: 
+
+        - name: Make sure the tftp directories exist
+          file: path="/srv/tftp/{{item}}" state=directory owner=foreman-proxy group=foreman-proxy mode=0775 recurse=yes
+          with_items:
                 - boot
                 - poap.cfg
                 - ztp.cfg
@@ -75,15 +100,17 @@
                 src: "http://downloads.theforeman.org/discovery/releases/3.2/fdi-image-latest.tar"
                 dest: "/srv/tftp/boot"
                 copy: no
+                creates: /srv/tftp/boot/fdi-image/initrd0.img
 
         -   name: Download and unpack Syslinux archive
             unarchive:
                 src: "https://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-5.10.tar.gz"
                 dest: "/tmp"
                 copy: no
+                creates: /srv/tftp/menu.c32
 
         -    name: Copy syslinux files
-             copy: src={{ item.src }} dest={{ item.dest }}
+             shell: creates=/srv/tftp/menu.c32 cp {{ item.src }} {{ item.dest }}
              with_items:
                - { src: '/tmp/syslinux-5.10/com32/chain/chain.c32', dest: '/srv/tftp' }
                - { src: '/tmp/syslinux-5.10/com32/lib/libcom32.c32', dest: '/srv/tftp' }
@@ -110,7 +137,7 @@
 
 
         -   name: Copy conf files
-            copy: src=files/proxy-server/foreman-proxy/{{item.filename}} dest=/etc/foreman-proxy/{{item.filename}}
+            copy: src=files/proxy-server/foreman-proxy/{{item}} dest=/etc/foreman-proxy/{{item}}
             with_items:
                 - settings.yml
                 - settings.d/bmc.yml
@@ -121,10 +148,34 @@
                 - settings.d/dns_nsupdate.yml
                 - settings.d/tftp.yml
 
+        - replace:
+             path: /etc/foreman-proxy/settings.yml
+             regexp: 'FIXME-MASTERHOST'
+             replace: "{{ foreman_master_hostname  }}"
+             backup: yes
+        #
+        - replace:
+             path: /etc/foreman-proxy/settings.yml
+             regexp: 'FIXME-PROXYHOST'
+             replace: "{{ ansible_fqdn  }}"
+             backup: yes
+        #
+        - replace:
+             path: /etc/foreman-proxy/settings.d/tftp.yml
+             regexp: 'FIXME-IP'
+             replace: "{{ ansible_eth1.ipv4.address  }}"
+             backup: yes
 
-# replace FIXME-MASTER -> master FQDN in settings.yml
-# replace FIXME ->  FQDN in settings.yml
-# FIXME-IP -> server ip in tftp.yml 
+        -   debug:
+                msg:
+                  - "Instalation from now on is manual. "
+                  - "Please:"
+                  - "generate certificates on Foreman master and copy them here. (script foreman-create-proxy-certificate.sh at {{ foreman_master_hostname  }}:~)"
+                  - "add new foreman proxy in https://{{ foreman_master_hostname  }}/"
+                  - "   - import IPv4 internal subnet"
+                  - "   - regenerate PXE Default in Hosts > Provisioning Templates > Build PXE Default"
+                  - "Afterwards start proxy using /etc/init.d/foreman-proxy restart"
+
 
 # send generated keys from master to proxies
 
@@ -132,10 +183,8 @@
 # after that copy key securely https://blog.confirm.ch/deploying-ssl-private-keys-with-ansible/
 
     handlers:
-        -   name: restart_TFTP
-            service: name=xinetd state=restarted
+         -   name: restart_TFTP
+             service: name=xinetd state=restarted
 
          -   name: restart_DHCP
-            service: name=isc-dhcp-server state=restarted
-
-
+             service: name=isc-dhcp-server state=restarted

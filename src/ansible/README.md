@@ -18,6 +18,6 @@ Running playbooks
 
 Example:
 
-		ansible-playbook -i hosts proxy_server.yml --check
+		ansible-playbook -i hosts proxy_server.yml --check -u root
 
 Run these without `--check` to apply changes on server.

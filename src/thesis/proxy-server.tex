@@ -1,0 +1,118 @@
+
+\section{Proxy server}
+
+
+
+
+\subsection{Nastavení sítě}
+\label{proxy-network}
+Tento virtuální server má přístup ke dvoum odděleným sítím. První z~nich je připojena do internetu (toto síťové rozhraní nazvěme eth0) a má IP adresu přiřazenou z~veřejného rozsahu. Adresa je nastavena staticky na stroji. Druhá síť je interní. Na tomto proxy serveru adresu přiřadíme staticky, u~dalších strojů se adresa přiřadí pomocí DHCP (DHCP server bude spuštěn na tomto serveru).
+
+
+Zde definujeme rozsah sítě pro každou lokalitu:
+
+\begin{minted}{text}
+10.22.X.0/24,
+\end{minted}
+
+kde X je číslo lokality, ve které se proxy server nachází. Maska podsítě \mintinline{latex}{/24} nám říká, že síť bude schopna obsáhnout 255 počítačů. Proxy server v~lokalitě č. 1 tedy bude mít vlastní adresu \mintinline{latex}{10.22.1.1/24}.
+
+\subsection{Foreman Smart Proxy}
+
+Smart Proxy je projektem nabízejícím restové API jednotlivým subsystémům. Je tedy rozhraním mezi automatizačními nástroji vyšší úrovně (např. Foreman) a službami nižší úrovně (jako je DHCP, DNS, TFTP, atd.).
+
+Pro instalaci balíčku v~operačním systému Debian je třeba přidat repozitáře Foremanu z~adresy \mintinline{latex}{deb.theforeman.org}. \cite{fproxy-install} Postup přidání repozitářů je stejný jako u~master serveru, proto zde není popsán. Poté nainstalujeme balíček pomocí \mintinline{latex}{apt-get} a aplikaci nastavíme. Jednou z~klíčových částí konfigurace je nastavení komunikace s~Foreman master serverem pomocí SSL. Toto je blíže popsáno v~kapitole Zabezpečení serveru.
+\subsection{konfigurace DHCP}
+
+
+Smart proxy potřebuje pro svou funkci správně fungující PXE stack, do kterého patří i DHCP server. Osobně jsem využil serveru od ISC, kvůli obrovské uživatelské podpoře a celkové vyladěnosti. V~repozitářích Debianu lze nalézt pod jménem \mintinline{latex}{isc-dhcp-server}. Ukázková konfigurace je níže:
+
+\begin{minted}{text}
+omapi-port 7911;
+max-lease-time 86400;
+
+option domain-name-servers 8.8.8.8;
+
+allow booting;
+allow bootp;
+
+option fqdn.no-client-update    on;  # set the "O" and "S" flag bits
+option fqdn.rcode2            255;
+option pxegrub code 150 = text ;
+
+# PXE Handoff.
+next-server SERVER_IP;
+filename "pxelinux.0";
+
+log-facility local7;
+
+include "/etc/dhcp/dhcpd.hosts";
+
+subnet 192.168.2.0 netmask 255.255.255.0 {
+range 192.168.2.10 192.168.2.255;
+  option subnet-mask 255.255.255.0;
+  option routers SERVER_IP;
+\end{minted}
+
+
+Výše vidíme nakonfigurované direktivy. Lease time (čas propůjčky IP adresy) můžeme nastavit libovolně. Povolení bootp a booting direktiv je nutná podmínka k~funkčnosti PXE. Řádka \mintinline{latex}{filename "pxelinux.0"}; značí soubor, který bude instalovanému stroji podsunut. Lokace souboru na proxy serveru je v~adresáři \mintinline{latex}{/var/lib/tftpboot}. Implicitně se soubor nachází v~adresáři \mintinline{latex}{/usr/share/syslinux/}, odkud je možné ho přesunout. Též je třeba, aby adresář obsahoval soubor \mintinline{latex}{menu.c32}. Nastavení podsítě je znovu libovolné, zde nastaveno podle kapitoly \ref{proxy-network}. Proměnná \mintinline{latex}{SERVER_IP} obsahuje IP adresu Smart Proxy.
+
+
+
+\subsection{konfigurace TFTP}
+
+Pro nastavení TFTP serveru využiji balíčku xinetd. Jeho nastavení je poměrně triviální; konfigurace TFTP se nachází v~adresáři \mintinline{latex}{/etc/xinetd.d/tftp}:
+\begin{minted}{bash}
+service tftp
+{
+ protocol = udp
+ port = 69
+ bind = SERVER-IP-BIND
+ socket_type = dgram
+ wait = yes
+ user = nobody
+ server = /usr/sbin/in.tftpd
+ server_args = /srv/tftp
+ disable = no
+}
+\end{minted}
+
+
+\subsection{Zabezpečení serveru}
+
+Komunikaci mezi Smart proxy a hlavním uzlem vykonáváme přes zabezpečené spojení SSL. Prvním krokem k~tomu je vytvoření certifikátu podepsaným Master serverem. Na hlavním uzlu tedy vykonáme příkaz (parameter SERVER-HOSTNAME je FQDN \footnote{Fully Qualified Domain Name; FQDN přesně určuje umístění počítače ve stromové struktuře DNS.} nově vytvořeného proxy serveru):
+
+
+\begin{minted}{text}
+$ /opt/puppetlabs/bin/puppet cert --generate SERVER-HOSTNAME
+\end{minted}
+
+Výstupem příkazu jsou 3 soubory:
+\begin{itemize}
+\item certifikát nově vytvořené proxy
+\item soukromý klíč nově vytvořené proxy
+\item certifikát hlavního uzlu
+\end{itemize}
+
+Tyto soubory přesuneme na proxy server a po změníme čtecí práva pouze pro uživatele foreman-proxy.
+
+Druhým bodem zabezpečení serveru je firewall. Stejně jako na hlavním uzlu máme operační systém Debian, použijeme tedy iptables.
+
+Povolené porty jsou následující:
+
+\begin{table}[h]
+\centering
+\caption{Otevřené porty na proxy serveru}
+\label{open-ports}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+
+Port &	Protokol &	Potřebné pro  \\ \midrule
+53 &	TCP \& UDP &	DNS Server \\
+67, 68 &	UDP &	DHCP  Server \\
+69 &	UDP &  TFTP Server \\
+5910 - 5930 &	TCP &	Server VNC Consoles \\
+8140 &	TCP &	Puppet Master \\
+8443 &	TCP &	Smart Proxy, otevřená pouze pro Foreman \\ \bottomrule
+\end{tabular}
+\end{table}

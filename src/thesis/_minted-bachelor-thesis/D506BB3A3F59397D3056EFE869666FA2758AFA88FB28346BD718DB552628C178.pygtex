@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} git clone https://github.com/theforeman/foreman\PYGZus{}plugin\PYGZus{}template
+ 		foreman\PYGZus{}colletctd\PYGZus{}graphs
+\end{Verbatim}

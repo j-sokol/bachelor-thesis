@@ -11,21 +11,26 @@
             with_items:
                 - collectd
                 - apache2
-                - libapache2-mod-php
+                - libapache2-mod-php5
                 - rrdtool
+                - git
 
         -   debug:
                 msg: "Configure collectd."
 
         -   copy: src=files/collectd-server/collectd.conf dest=/etc/collectd/collectd.conf
             notify:
-                - restart_COLLECTD       
+                - restart_COLLECTD
 
-# fix FIXME
+        - replace:
+             path: /etc/collectd/collectd.conf
+             regexp: 'FIXME-HOSTNAME'
+             replace: "{{ ansible_fqdn }}"
+             backup: yes
 
         -   copy: src=files/collectd-server/auth_file dest=/etc/collectd/auth_file
             notify:
-                - restart_COLLECTD       
+                - restart_COLLECTD
 
 
 # change FIXME-HOSTNAME
@@ -41,16 +46,21 @@
 
 
         -   name: enabled mod_php
-            apache2_module: name=php state=present
+            apache2_module: name=php5 state=present
             notify:
                 - restart_APACHE
 
-# is php already working like so?
+        -   name: enabled mod_ssl
+            apache2_module: name=ssl state=present
+            notify:
+                - restart_APACHE
+
+
 
         -   name: Clone Collectd Graph Panel repo
             git:
                 repo: https://github.com/pommi/CGP
-                dest: /var/www/
+                dest: /var/www/html/CGP
                 version: master
                 update: no
 
@@ -58,9 +68,28 @@
             file: name=/etc/apache2/ssl state=directory owner=root mode=0700
 
         -   name: create self-signed SSL cert
-            command: openssl req -new -nodes -x509 -subj "/C=CZ/ST=Czechia/L=Prague/O=IT/CN=${ansible_fqdn}" -days 3650 -keyout /etc/apache2/ssl/server.key -out /etc/apache2/ssl/server.crt -extensions v3_ca creates=/etc/apache2/ssl/server.crt
+            command: openssl req -new -nodes -x509 -subj "/C=CZ/ST=Czechia/L=Prague/O=IT/CN=${ansible_fqdn}" -days 3650 -keyout /etc/apache2/ssl/{{ ansible_fqdn }}.key -out /etc/apache2/ssl/{{ ansible_fqdn }}.crt -extensions v3_ca creates=/etc/apache2/ssl/{{ ansible_fqdn }}.crt
             notify:
                 - restart_APACHE
+
+        -   copy: src=files/collectd-server/httpd-ssl.conf dest=/etc/apache2/sites-available/httpd-ssl.conf
+
+        -   replace:
+             path: /etc/apache2/sites-available/httpd-ssl.conf
+             regexp: 'FIXME-HOSTNAME'
+             replace: "{{ ansible_fqdn }}"
+             backup: yes
+
+        - name: a2ensite httpd-ssl
+          command: a2ensite httpd-ssl
+          notify:
+          - restart_APACHE
+
+        - name: a2dissite 000-default
+          command: a2dissite 000-default
+          notify:
+          - restart_APACHE
+
 
 # ssl vhost
 # disable enabled vhosts
@@ -69,13 +98,13 @@
         -   debug:
                 msg: "Configure iptables."
 
-        -   iptables_raw:
-            name: enable_https
-            rules: ''
-
-        -   iptables_raw:
-            name: enable_ctd
-            rules: ''
+        # -   iptables_raw:
+        #     name: enable_https
+        #     rules: ''
+        #
+        # -   iptables_raw:
+        #     name: enable_ctd
+        #     rules: ''
 
 
 
@@ -86,4 +115,3 @@
 
         -   name: restart_APACHE
             service: name=apache2 state=restarted
-

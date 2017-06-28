@@ -1,0 +1,6 @@
+[submodule "src/foreman-collectd-plugin"]
+	path = src/foreman-collectd-plugin
+	url = https://github.com/j-sokol/foreman-collectd-plugin.git
+[submodule "src/foreman-collectd-graphs-plugin"]
+	path = src/foreman-collectd-graphs-plugin
+	url = https://github.com/j-sokol/foreman-collectd-graphs-plugin.git

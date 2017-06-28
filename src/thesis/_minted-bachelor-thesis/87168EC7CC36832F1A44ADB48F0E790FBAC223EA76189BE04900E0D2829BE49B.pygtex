@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nb}{echo} \PYG{l+s+s2}{\PYGZdq{}deb http://deb.theforeman.org/ jessie 1.14\PYGZdq{}}
+    \PYGZgt{} /etc/apt/sources.list.d/foreman.list
+\PYG{n+nb}{echo} \PYG{l+s+s2}{\PYGZdq{}deb http://deb.theforeman.org/ plugins 1.14\PYGZdq{}}
+    \PYGZgt{}\PYGZgt{} /etc/apt/sources.list.d/foreman.list
+apt\PYGZhy{}get \PYGZhy{}y install ca\PYGZhy{}certificates
+wget \PYGZhy{}q https://deb.theforeman.org/pubkey.gpg \PYGZhy{}O\PYGZhy{} \PYG{p}{|} apt\PYGZhy{}key add \PYGZhy{}
+\end{Verbatim}

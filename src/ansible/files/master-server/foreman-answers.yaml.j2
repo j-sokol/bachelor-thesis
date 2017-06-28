@@ -1,0 +1,34 @@
+---
+{% if foreman_enable %}
+foreman:
+  custom_repo: true
+  manage_user: false
+{% if foreman_pass is defined %}
+  admin_password: {{ foreman_pass }}
+{% endif %}
+{% if foreman_ssl %}
+  ssl: true
+  server_ssl_ca: {{ foreman_ssl_ca_certificate_file }}
+  server_ssl_chain: {{ foreman_ssl_certificate_file }}
+  server_ssl_cert: {{ foreman_ssl_certificate_file }}
+  server_ssl_certs_dir: ""
+  server_ssl_key: {{ foreman_ssl_certificate_key_file }}
+  server_ssl_crl: ""
+  websockets_ssl_key: {{ foreman_ssl_certificate_key_file }}
+  websockets_ssl_cert: {{ foreman_ssl_certificate_file }}
+{% endif %}
+{% else %}
+foreman: false
+{% endif %}
+
+
+foreman_proxy: false
+
+puppet: false
+
+foreman::cli: false
+foreman::plugin::ansible: true
+foreman::plugin::dhcp_browser: true
+foreman::plugin::discovery:
+  install_images: true
+foreman::plugin::setup: true

@@ -1,15 +1,36 @@
 -   name: "Configure foreman master node on Debian"
     hosts: [master]
+    vars:
+        - foreman_master_hostname: foreman.weedtime.cz
+        - foreman_pass: "SecurePassXXX123748"
+        - foreman_enable: true
+        - foreman_ssl: true
+        - foreman_puppet_server_enable: false
+        - foreman_version: 1.14
+        - foreman_ssl_base_path: "{{ '/var/lib/puppet/ssl' if foreman_puppet_server_enable else '/etc/pki/tls' }}"
+        - foreman_ssl_private_keys_dir: "{{ 'private_keys' if foreman_puppet_server_enable else 'private' }}"
+        - foreman_ssl_key_ext: "{{ 'pem' if foreman_puppet_server_enable else '.key' }}"
+        - foreman_ssl_cert_ext: "{{ 'pem' if foreman_puppet_server_enable else '.crt' }}"
+        - foreman_ssl_ca_certificate_file: "{{ foreman_ssl_base_path }}/certs/ca.pem"
+        - foreman_ssl_certificate_file: "{{ foreman_ssl_base_path }}/certs/{{ ansible_nodename }}.{{ foreman_ssl_cert_ext }}"
+        - foreman_ssl_certificate_key_file: "{{ foreman_ssl_base_path }}/{{ foreman_ssl_private_keys_dir }}/{{ ansible_nodename }}.{{ foreman_ssl_key_ext }}"
+
+
     tasks:
+
         -   debug:
                 msg: "Adding Foreman repositories."
 
-        -   apt_key: url=http://nginx.org/keys/nginx_signing.key state=present 
+        - name: Ensure python-apt is installed
+          command: >
+            apt-get install python-apt -y -q
+            creates=/usr/share/doc/python-apt
 
-        -   apt_repository: repo='deb deb http://nginx.org/packages/mainline/ubuntu/ xenial nginx' state=present filename='nginx' update_cache='yes'
 
-        -   debug:
-                msg: "Will install needed packages."
+        -   apt_key: url=https://deb.theforeman.org/pubkey.gpg state=present
+
+        -   apt_repository: repo='deb http://deb.theforeman.org/ jessie 1.14' state=present filename='foreman.list' update_cache='yes'
+        -   apt_repository: repo='deb http://deb.theforeman.org/ plugins 1.14' state=present filename='foreman.list' update_cache='yes'
 
         -   apt:
                 package: "{{item}}"
@@ -18,17 +39,44 @@
             with_items:
                 - foreman-installer
 
-#       -   name: Install Foreman master using installer
-#            command: foreman-installer   --enable-foreman-proxy   --foreman-proxy-tftp=true   --foreman-proxy-tftp-servername=192.168.40.1   --foreman-proxy-dhcp=true   --foreman-proxy-dhcp-interface=eth3   --foreman-proxy-dhcp-gateway=192.168.40.1   --foreman-proxy-dhcp-nameservers="192.168.40.1"   --foreman-proxy-dns=true   --foreman-proxy-dns-interface=eth3   --foreman-proxy-dns-zone=cdn77.eu   --foreman-proxy-dns-reverse=40.168.192.in-addr.arpa --foreman-proxy-dns-forwarders=8.8.8.8   --foreman-proxy-dns-forwarders=8.8.4.4   --foreman-proxy-foreman-base-url=https://autoinstall-1.cdn77.eu --foreman-proxy-oauth-consumer-key=6BDzQbQDyV8avVpkLyskMKrZeej7AuLH   --foreman-proxy-oauth-consumer-secret=WsM4M9M4wRiXW2gyppSqDgFd84sFhWWJ
 
-        -   debug:
-                msg: "Please start now foreman-installer and install master server."
+        - name: render /etc/foreman-installer/scenarios.d/foreman-answers.yaml
+          template:
+            src: files/master-server/foreman-answers.yaml.j2
+            dest: /etc/foreman-installer/scenarios.d/foreman-answers.yaml
+            owner: root
+            group: root
+            mode: '0600'
+          notify: foreman-installer
+          tags:
+            - foreman-answers
+            - foreman-answers-generate
+
+        - name: call foreman-installer right away
+          meta: flush_handlers
+
+        # - name: insert ssl_* directives (see https://github.com/theforeman/puppet-foreman/issues/441)
+        #   blockinfile:
+        #     dest: /etc/foreman/settings.yaml
+        #     insertbefore: '# Log settings'
+        #     marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        #     content: |
+        #       :ssl_certificate: {{ foreman_ssl_certificate_file }}
+        #       :ssl_ca_file: {{ foreman_ssl_ca_certificate_file }}
+        #       :ssl_priv_key: {{ foreman_ssl_certificate_key_file }}
+        #   tags:
+        #     - foreman-settings
+
+
+
+        # -   debug:
+        #         msg: "Please start now foreman-installer and install master server."
 
         -   name: Create /etc/foreman/plugins
             file: path=/etc/foreman/plugins state=directory owner=root group=root mode=0775 recurse=yes
 
         -   name: Copy conf files
-            copy: src=files/master-server/foreman/{{item.filename}} dest=/etc/foreman/{{item.filename}}
+            copy: src=files/master-server/foreman/{{item}} dest=/etc/foreman/{{item}}
             with_items:
                 - database.yml
                 - email.yml
@@ -37,15 +85,29 @@
         -   debug:
                 msg: "Copy templates for installable OSs."
 
+        -   copy:
+                src: files/master-server/foreman-create-proxy-certificate.sh
+                dest: /root/foreman-create-proxy-certificate.sh
+                owner: root
+                group: root
+                mode: "u+rwx,g-wx,o-rwx"
+
+
+
+
+
 
         -   debug:
                 msg: "Configure iptables."
 
-        -   iptables_raw:
-            name: enable_https
-            rules: ''
 
-        -   iptables_raw:
-            name: enable_ctd
-            rules: ''
 
+    handlers:
+        - name: foreman-installer
+          command: foreman-installer --dont-save-answers
+          register: foreman_installer_output
+          notify: foreman-installer-output
+
+        - name: foreman-installer-output
+          debug: var=foreman_installer_output.stdout_lines
+          when: foreman_debug_installer

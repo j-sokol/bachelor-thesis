@@ -1,0 +1,316 @@
+% options:
+% thesis=B bachelor's thesis
+% thesis=M master's thesis
+% czech thesis in Czech language
+% slovak thesis in Slovak language
+% english thesis in English language
+% hidelinks remove colour boxes around hyperlinks
+
+\documentclass[thesis=B,czech]{FITthesis}[2017/05/04]
+
+\usepackage[utf8]{inputenc} % LaTeX source encoded as UTF-8
+
+\usepackage{graphicx} %graphics files inclusion
+% \usepackage{amsmath} %advanced maths
+% \usepackage{amssymb} %additional math symbols
+
+\usepackage{dirtree} %directory tree visualisation
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{rotating}
+
+% % list of acronyms
+% \usepackage[acronym,nonumberlist,toc,numberedsection=autolabel]{glossaries}
+% \iflanguage{czech}{\renewcommand*{\acronymname}{Seznam pou{\v z}it{\' y}ch zkratek}}{}
+% \makeglossaries
+
+\newcommand{\tg}{\mathop{\mathrm{tg}}} %cesky tangens
+\newcommand{\cotg}{\mathop{\mathrm{cotg}}} %cesky cotangens
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% ODTUD DAL VSE ZMENTE
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+
+\department{Katedra počítačových systémů}
+\title{Infrastruktura pro centralizovanou automatickou instalaci serverů}
+\authorGN{Jan} %(křestní) jméno (jména) autora
+\authorFN{Sokol} %příjmení autora
+\authorWithDegrees{Jan Sokol} %jméno autora včetně současných akademických titulů
+\supervisor{Ing. Jiří Dostál}
+\acknowledgements{Rád bych poděkoval mému vedoucímu práce Ing. Jiřímu Dostálovi za jeho opakovanou pomoc jak se strukturou bakalářské práce, tak i obsahem. Osoby v~následujícím výčtu mi velmi pomohly v~nejhorších chvílích, kdy se psaní zdálo skoro nemožné. Jmenovitě maminka Monika Sokolová, sestra Markéta Sokolová a Milica Marić. V~neposlední řadě Anuša Kovačič, Henrich Le, Davor Miletić, Denys Sidorenko, Jakub Tobolka, Vanja Djurdjevic, Tomáš Hyhlík a další, kteří se mnou bakalářskou práci konzultovali.}
+
+\input{abstractCS.tex}
+\input{abstractEN.tex}
+
+\placeForDeclarationOfAuthenticity{V~Praze}
+\declarationOfAuthenticityOption{4} %volba Prohlášení (číslo 1-6)
+\keywordsCS{linux, foreman, provisioning, server, bare metal, plugin, ansible}
+\keywordsEN{linux, foreman, provisioning, server, bare metal, plugin, ansible}
+
+\begin{document}
+
+% \newacronym{CVUT}{{\v C}VUT}{{\v C}esk{\' e} vysok{\' e} u{\v c}en{\' i} technick{\' e} v Praze}
+% \newacronym{FIT}{FIT}{Fakulta informa{\v c}n{\' i}ch technologi{\' i}}
+
+\input{uvod.tex}
+\input{teorie.tex}
+\input{analyza.tex}
+\input{nasazeni.tex}
+\input{master-server.tex}
+\input{proxy-server.tex}  % has broken table
+
+\input{plugin.tex}
+\input{ansible.tex}
+%\input{realny-provoz.tex}
+
+\input{zaver.tex}
+\input{references.tex}
+
+\appendix
+
+\chapter{Snímky pluginu}
+
+\begin{figure}[h]\centering
+\includegraphics[width=\textwidth]{files/plugin-gui.png}
+	\caption{Foreman-collectd-graphs-plugin: grafické rozhraní }\label{fig:float}
+\end{figure}
+
+\begin{figure}[h]\centering
+\includegraphics[width=\textwidth]{files/plugin-config.png}
+	\caption{Foreman-collectd-graphs-plugin: konfigurace }\label{fig:float}
+\end{figure}
+
+
+\chapter{Manuál pluginu}
+
+\begin{minted}{text}
+# Foreman-collectd-plugin
+
+Collectd plugin for foreman showing graphs from collectd graph
+panel running on hostname set in config file.
+
+## Installation
+
+See [How_to_Install_a_Plugin](http://projects.theforeman.org/proj
+	ects/foreman/wiki/How_to_Install_a_Plugin)
+for how to install Foreman plugins
+
+## Config file
+
+create file collectd-graph-plugin.yml in /etc/foreman/plugins
+ with following:
+```
+  :collectd-graph-plugin:
+    :hostname: collectd.weedtime.cz/CGP/
+```
+where on collectd.weedtime.cz/CGP/ is running collectd graph
+pannel, see https://github.com/pommi/CGP
+
+## Contributing
+
+Fork and send a Pull Request. Thanks!
+
+## Copyright
+
+Copyright (c) 2017 Jan Sokol GNU GPL 3
+
+\end{minted}
+
+
+\chapter{Manuál pro ansible}
+
+\begin{minted}{text}
+Ansible
+-------
+
+ - Installation:
+ 	http://docs.ansible.com/intro_installation.html
+ - Ansible version should be < 2.0
+
+Setup
+-----
+
+ 1. Clone this repository
+ 1. Change `hosts` file according to your needs
+ 1. Change values specified in group_vars/* files
+
+Running playbooks
+-----------------
+
+		ansible-playbook -i <hosts_file> <playbook>
+		 --check
+
+Example:
+
+		ansible-playbook -i hosts proxy_server.yml
+		 --check
+
+Run these without `--check` to apply changes on server.
+\end{minted}
+
+
+\chapter{Seznam použitých zkratek}
+% \printglossaries
+\begin{description}
+	\item[GUI] Graphical user interface
+	\item[PXE] Preboot eXecution Environment
+	\item[DHCP] Dynamic Host Configuration Protocol
+	\item[DNS] Domain Name System
+	\item[TFTP] Trivial File Transfer Protocol
+	\item[TCP] Transmission Control Protocol
+	\item[UDP] User Datagram Protocol
+	\item[RHEL] Red Hat Enterprise Linux
+	\item[SSL] Secure Sockets Layer
+	\item[NIC] Network Interface Controller
+	\item[FQDN] Fully Qualified Domain Name
+	\item[IPMI] Intelligent Platform Management Interface
+	\item[IP] Internet Protocol
+	\item[UNDI] Universal Network Device Interface
+	\item[UUID] Universally Unique Identifier
+	\item[GUID] Globally Unique Identifier
+	\item[VLAN] Virtuální LAN
+	\item[API] Application Programming Interface
+	\item[KVM] Kernel-based Virtual Machine
+	\item[XSS] Cross-Site Scripting
+
+
+	\item[MTFTP] Multicast Trivial File Transfer Protocol
+	\item[GRUB] GRand Unified Bootloader
+	\item[FAT] File Allocation Table
+	\item[HTTP] Hypertext Transfer Protocol
+	\item[BIOS] Basic Input-Output System
+	\item[MBR] Master Boot Record
+	\item[UEFI] Unified Extensible Firmware Interface
+	\item[GPT] GUID Partition Table
+
+
+\end{description}
+
+
+% % % % % % % % % % % % % % % % % % % % % % % % % % % %
+% % Tuto kapitolu z výsledné práce ODSTRAŇTE.
+% % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%
+% \chapter{Návod k~použití této šablony}
+%
+% Tento dokument slouží jako základ pro napsání závěrečné práce na Fakultě informačních technologií ČVUT v~Praze.
+%
+% \section{Výběr základu}
+%
+% Vyberte si šablonu podle druhu práce (bakalářská, diplomová), jazyka (čeština, angličtina) a kódování (ASCII, \mbox{UTF-8}, \mbox{ISO-8859-2} neboli latin2 a nebo \mbox{Windows-1250}).
+%
+% V~české variantě naleznete šablony v~souborech pojmenovaných ve formátu práce\_kódování.tex. Typ může být:
+% \begin{description}
+% 	\item[BP] bakalářská práce,
+% 	\item[DP] diplomová (magisterská) práce.
+% \end{description}
+% Kódování, ve kterém chcete psát, může být:
+% \begin{description}
+% 	\item[UTF-8] kódování Unicode,
+% 	\item[ISO-8859-2] latin2,
+% 	\item[Windows-1250] znaková sada 1250 Windows.
+% \end{description}
+% V~případě nejistoty ohledně kódování doporučujeme následující postup:
+% \begin{enumerate}
+% 	\item Otevřete šablony pro kódování UTF-8 v~editoru prostého textu, který chcete pro psaní práce použít -- pokud můžete texty s~diakritikou normálně přečíst, použijte tuto šablonu.
+% 	\item V~opačném případě postupujte dále podle toho, jaký operační systém používáte:
+% 	\begin{itemize}
+% 		\item v~případě Windows použijte šablonu pro kódování \mbox{Windows-1250},
+% 		\item jinak zkuste použít šablonu pro kódování \mbox{ISO-8859-2}.
+% 	\end{itemize}
+% \end{enumerate}
+%
+%
+% V~anglické variantě jsou šablony pojmenované podle typu práce, možnosti jsou:
+% \begin{description}
+% 	\item[bachelors] bakalářská práce,
+% 	\item[masters] diplomová (magisterská) práce.
+% \end{description}
+%
+% \section{Použití šablony}
+%
+% Šablona je určena pro zpracování systémem \LaTeXe{}. Text je možné psát v~textovém editoru jako prostý text, lze však také využít specializovaný editor pro \LaTeX{}, např. Kile.
+%
+% Pro získání tisknutelného výstupu z~takto vytvořeného souboru použijte příkaz \verb|pdflatex|, kterému předáte cestu k~souboru jako parametr. Vhodný editor pro \LaTeX{} toto udělá za Vás. \verb|pdfcslatex| ani \verb|cslatex| \emph{nebudou} s~těmito šablonami fungovat.
+%
+% Více informací o~použití systému \LaTeX{} najdete např. v~\cite{wikilatex}.
+%
+% \subsection{Typografie}
+%
+% Při psaní dodržujte typografické konvence zvoleného jazyka. České \uv{uvozovky} zapisujte použitím příkazu \verb|\uv|, kterému v~parametru předáte text, jenž má být v~uvozovkách. Anglické otevírací uvozovky se v~\LaTeX{}u zadávají jako dva zpětné apostrofy, uzavírací uvozovky jako dva apostrofy. Často chybně uváděný symbol "{} (palce) nemá s~uvozovkami nic společného.
+%
+% Dále je třeba zabránit zalomení řádky mezi některými slovy, v~češtině např. za jednopísmennými předložkami a spojkami (vyjma \uv{a}). To docílíte vložením pružné nezalomitelné mezery -- znakem \texttt{\textasciitilde}. V~tomto případě to není třeba dělat ručně, lze použít program \verb|vlna|.
+%
+% Více o~typografii viz \cite{kobltypo}.
+%
+% \subsection{Obrázky}
+%
+% Pro umožnění vkládání obrázků je vhodné použít balíček \verb|graphicx|, samotné vložení se provede příkazem \verb|\includegraphics|. Takto je možné vkládat obrázky ve formátu PDF, PNG a JPEG jestliže používáte pdf\LaTeX{} nebo ve formátu EPS jestliže používáte \LaTeX{}. Doporučujeme preferovat vektorové obrázky před rastrovými (vyjma fotografií).
+%
+% \subsubsection{Získání vhodného formátu}
+%
+% Pro získání vektorových formátů PDF nebo EPS z~jiných lze použít některý z~vektorových grafických editorů. Pro převod rastrového obrázku na vektorový lze použít rasterizaci, kterou mnohé editory zvládají (např. Inkscape). Pro konverze lze použít též nástroje pro dávkové zpracování běžně dodávané s~\LaTeX{}em, např. \verb|epstopdf|.
+%
+% \subsubsection{Plovoucí prostředí}
+%
+% Příkazem \verb|\includegraphics| lze obrázky vkládat přímo, doporučujeme však použít plovoucí prostředí, konkrétně \verb|figure|. Například obrázek \ref{fig:float} byl vložen tímto způsobem. Vůbec přitom nevadí, když je obrázek umístěn jinde, než bylo původně zamýšleno -- je tomu tak hlavně kvůli dodržení typografických konvencí. Namísto vynucování konkrétní pozice obrázku doporučujeme používat odkazování z~textu (dvojice příkazů \verb|\label| a \verb|\ref|).
+%
+% \begin{figure}\centering
+% 	\includegraphics[width=0.5\textwidth, angle=30]{cvut-logo-bw}
+% 	\caption[Příklad obrázku]{Ukázkový obrázek v~plovoucím prostředí}\label{fig:float}
+% \end{figure}
+%
+% \subsubsection{Verze obrázků}
+%
+% % Gnuplot BW i barevně
+% Může se hodit mít více verzí stejného obrázku, např. pro barevný či černobílý tisk a nebo pro prezentaci. S~pomocí některých nástrojů na generování grafiky je to snadné.
+%
+% Máte-li například graf vytvořený v programu Gnuplot, můžete jeho černobílou variantu (viz obr. \ref{fig:gnuplot-bw}) vytvořit parametrem \verb|monochrome dashed| příkazu \verb|set term|. Barevnou variantu (viz obr. \ref{fig:gnuplot-col}) vhodnou na prezentace lze vytvořit parametrem \verb|colour solid|.
+%
+% \begin{figure}\centering
+% 	\includegraphics{gnuplot-bw}
+% 	\caption{Černobílá varianta obrázku generovaného programem Gnuplot}\label{fig:gnuplot-bw}
+% \end{figure}
+%
+% \begin{figure}\centering
+% 	\includegraphics{gnuplot-col}
+% 	\caption{Barevná varianta obrázku generovaného programem Gnuplot}\label{fig:gnuplot-col}
+% \end{figure}
+%
+%
+% \subsection{Tabulky}
+%
+% Tabulky lze zadávat různě, např. v~prostředí \verb|tabular|, avšak pro jejich vkládání platí to samé, co pro obrázky -- použijte plovoucí prostředí, v~tomto případě \verb|table|. Například tabulka \ref{tab:matematika} byla vložena tímto způsobem.
+%
+% \begin{table}\centering
+% 	\caption[Příklad tabulky]{Zadávání matematiky}\label{tab:matematika}
+% 	\begin{tabular}{|l|l|c|c|}\hline
+% 		Typ		& Prostředí		& \LaTeX{}ovská zkratka	& \TeX{}ovská zkratka	\tabularnewline \hline \hline
+% 		Text		& \verb|math|		& \verb|\(...\)|	& \verb|$...$|		\tabularnewline \hline
+% 		Displayed	& \verb|displaymath|	& \verb|\[...\]|	& \verb|$$...$$|	\tabularnewline \hline
+% 	\end{tabular}
+% \end{table}
+%
+% % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+\chapter{Obsah přiloženého CD}
+
+%upravte podle skutecnosti
+
+
+\begin{figure}
+	\dirtree{%
+		.1 readme.txt\DTcomment{stručný popis obsahu CD}.
+		.1 src.
+		.2 plugin\DTcomment{zdrojové kódy pluginu}.
+		.2 ansible\DTcomment{konfigurační soubory pro Ansible}.
+		.2 thesis\DTcomment{zdrojová forma práce ve formátu \LaTeX{}}.
+		.1 text\DTcomment{text práce}.
+		.2 thesis.pdf\DTcomment{text práce ve formátu PDF}.
+		.2 thesis.ps\DTcomment{text práce ve formátu PS}.
+	}
+\end{figure}
+
+
+\end{document}

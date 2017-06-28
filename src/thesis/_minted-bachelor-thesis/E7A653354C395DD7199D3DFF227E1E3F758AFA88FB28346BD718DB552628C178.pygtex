@@ -1,0 +1,36 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZsh{}!/usr/bin/env bash
+
+\PYGZsh{} Backup The Foreman, following the advice at
+\PYGZsh{} http://theforeman.org/manuals/1.7/index.html\PYGZsh{}5.5.1Backup
+
+set \PYGZhy{}e \PYGZsh{} If any command fails, stop this script.
+ME=\PYGZdl{}(basename \PYGZdl{}0)
+main () \PYGZob{}
+
+  DATE=\PYGZdl{}(date \PYGZsq{}+\PYGZpc{}Y\PYGZpc{}m\PYGZpc{}d.\PYGZpc{}H\PYGZpc{}M\PYGZsq{})
+  BACKUPDIR=/data/backups/backup\PYGZhy{}\PYGZdl{}DATE
+  mkdir \PYGZdl{}BACKUPDIR
+  chgrp postgres \PYGZdl{}BACKUPDIR
+  chmod g+w \PYGZdl{}BACKUPDIR
+
+  cd \PYGZdl{}BACKUPDIR
+
+  \PYGZsh{} Backup postgres database
+  su \PYGZhy{} postgres \PYGZhy{}c \PYGZdq{}pg\PYGZus{}dump \PYGZhy{}Fc foreman \PYGZgt{} \PYGZdl{}BACKUPDIR/foreman.dump\PYGZdq{}
+
+  \PYGZsh{} Backup config ifles
+
+  tar \PYGZhy{}\PYGZhy{}selinux \PYGZhy{}czf \PYGZdl{}BACKUPDIR/etc\PYGZus{}foreman\PYGZus{}dir.tar.gz
+      /etc/foreman
+  tar \PYGZhy{}\PYGZhy{}selinux \PYGZhy{}czf \PYGZdl{}BACKUPDIR/var\PYGZus{}lib\PYGZus{}puppet\PYGZus{}dir.tar.gz
+      /var/lib/puppet/ssl
+  tar \PYGZhy{}\PYGZhy{}selinux \PYGZhy{}czf \PYGZdl{}BACKUPDIR/tftpboot\PYGZhy{}dhcp.tar.gz
+      /var/lib/tftpboot /etc/dhcp/ /var/lib/dhcpd/
+
+  ls \PYGZhy{}lh *tar.gz foreman.dump
+
+\PYGZcb{}
+
+main 2\PYGZgt{}\PYGZam{}1 | /usr/bin/logger \PYGZhy{}t \PYGZdl{}ME
+\end{Verbatim}

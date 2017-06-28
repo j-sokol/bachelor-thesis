@@ -1,0 +1,12 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGZdl{} cat servers\PYGZus{}list
+[master]
+host1  ip\PYGZus{}addr=10.10.1.2
+
+[proxy]
+host2  ip\PYGZus{}addr=10.10.2.2
+host3  ip\PYGZus{}addr=10.10.3.3
+
+[collectd]
+host4  ip\PYGZus{}addr=10.10.1.3
+\end{Verbatim}
